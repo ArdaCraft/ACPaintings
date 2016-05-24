@@ -1,0 +1,14 @@
+[
+{
+  "modid": "acpaintings",
+  "name": "ACPaintings",
+  "description": "Extra paintings",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "authorList": ["dags"],
+  "credits": "fu",
+  "logoFile": "",
+  "screenshots": []
+}
+]
