@@ -1,7 +1,7 @@
 package me.ardacraft.paintings;
 
 import me.ardacraft.paintings.entity.*;
-import me.ardacraft.paintings.item.*;
+import me.ardacraft.paintings.item.PaintingItem;
 import me.ardacraft.paintings.render.PaintingRenderFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -28,15 +28,15 @@ public class ACPainting
     private final PaintingItem paint4 = new PaintingItem(Painting4.class, Painting4::new);
 
     /**
-     * Each painting inherits 24 variations of varying shapes/sizes (same format as vanilla paintings)
      * Each painting entity must have it's own class 'Painting#' and have it's PaintingItem registered for it as below
-     * Each painting must have an item model and texture under assets
+     * Each painting holds 71 tiles of varying sizes
+     * Each painting must have an item model, item texture, and painting texture under assets
      *
-     * Adding more paintings therefore requires:
+     * To add more paintings:
      * 1. A new Painting# class that extends PaintingBase
      * 2. A PaintingItem constructed with step 1's Painting# class, and a PaintingCreator function that creates a new
      *    instance of type Painting#
-     * 3. An item model and texture file sharing the name 'painting#'
+     * 3. An item model and textures sharing the name 'painting#'
      * 4. An entry in the lang file for something human readable
      * 5. The PaintingItem must be registered as below - seems that the entity must be registered during PreInit, and
      *    the model during init (or later?)
@@ -81,7 +81,10 @@ public class ACPainting
         if (side == Side.CLIENT)
         {
             ModelResourceLocation location = new ModelResourceLocation(MOD_ID + ":" + item.getSimpleName(), "inventory");
-            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, location);
+            for (int meta = 0; meta < Art.values().length; meta++)
+            {
+                Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);
+            }
         }
     }
 }

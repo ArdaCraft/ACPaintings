@@ -1,5 +1,6 @@
 package me.ardacraft.paintings.item;
 
+import me.ardacraft.paintings.entity.Art;
 import me.ardacraft.paintings.entity.PaintingBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -40,6 +41,24 @@ public class PaintingItem extends ItemHangingEntity
     }
 
     @Override
+    public String getItemStackDisplayName(ItemStack itemStack)
+    {
+        String base = super.getItemStackDisplayName(itemStack);
+        int id = itemStack.getItemDamage();
+        if (id > 0 && id < Art.values().length)
+        {
+            return base + ":" + id + " " + Art.values()[id].shape;
+        }
+        return base;
+    }
+
+    @Override
+    public int getMetadata(int damage)
+    {
+        return damage;
+    }
+
+    @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (side == EnumFacing.DOWN)
@@ -61,7 +80,6 @@ public class PaintingItem extends ItemHangingEntity
             else
             {
                 PaintingBase painting = paintingCreator.createEntity(worldIn, blockpos, side);
-                painting.setPositionAndRotation(blockpos.getX(), blockpos.getY(), blockpos.getZ(), 0F, 0F);
                 painting.setArtFromStack(stack);
 
                 if (painting.onValidSurface() && !worldIn.isRemote)

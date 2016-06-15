@@ -27,3 +27,5 @@ gradlew.bat
 gradle/wrapper/gradle-wrapper.jar
 *.properties
 gradlew
+*.psd
+src.zip

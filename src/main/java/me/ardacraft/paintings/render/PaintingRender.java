@@ -1,6 +1,7 @@
 package me.ardacraft.paintings.render;
 
 import me.ardacraft.paintings.ACPainting;
+import me.ardacraft.paintings.entity.Art;
 import me.ardacraft.paintings.entity.PaintingBase;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -34,7 +35,7 @@ public class PaintingRender extends Render<PaintingBase>
         GlStateManager.rotate(180.0F - entityYaw, 0.0F, 1.0F, 0.0F);
         GlStateManager.enableRescaleNormal();
         this.bindEntityTexture(entity);
-        PaintingBase.EnumArt art = entity.art;
+        Art art = entity.art;
         float f = 0.0625F;
         GlStateManager.scale(f, f, f);
         this.renderPainting(entity, art.sizeX, art.sizeY, art.offsetX, art.offsetY);

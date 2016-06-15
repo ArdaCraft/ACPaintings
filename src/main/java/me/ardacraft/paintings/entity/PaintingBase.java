@@ -2,9 +2,10 @@ package me.ardacraft.paintings.entity;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityPainting;
+import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
@@ -16,8 +17,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * @author dags <dags@dags.me>
  */
-public class PaintingBase extends EntityPainting implements IEntityAdditionalSpawnData
+public class PaintingBase extends EntityHanging implements IEntityAdditionalSpawnData
 {
+    public Art art = Art.A1x1_0;
+
     public PaintingBase(World worldIn)
     {
         super(worldIn);
@@ -26,70 +29,114 @@ public class PaintingBase extends EntityPainting implements IEntityAdditionalSpa
     @SideOnly(Side.CLIENT)
     public PaintingBase(World worldIn, BlockPos pos, EnumFacing facing, String title)
     {
-        super(worldIn, pos, facing, title);
+        this(worldIn, pos, facing);
+
+        for (Art art : Art.values())
+        {
+            if (art.name().equals(title))
+            {
+                this.art = art;
+                break;
+            }
+        }
+
+        this.updateFacingWithBoundingBox(facing);
     }
 
     public PaintingBase(World worldIn, BlockPos pos, EnumFacing facing)
     {
-        super(worldIn, pos, facing);
+        super(worldIn, pos);
+        this.art = Art.A1x1_0;
+        this.updateFacingWithBoundingBox(facing);
     }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean bool)
-    {}
 
     @Override
     public void onBroken(Entity brokenEntity)
     {}
 
     @Override
-    public void writeSpawnData(ByteBuf buffer)
+    public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
     {
-        int index = this.getHorizontalFacing().getIndex();
-        buffer.writeInt(index);
-        EnumArt[] arts = EnumArt.values();
-        for (int i = 0; i < arts.length; i++)
+        BlockPos blockpos = this.hangingPosition.add(x - this.posX, y - this.posY, z - this.posZ);
+        this.setPosition((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean p_180426_10_)
+    {}
+
+    @Override
+    public int getWidthPixels()
+    {
+        return this.art.sizeX;
+    }
+
+    @Override
+    public int getHeightPixels()
+    {
+        return this.art.sizeY;
+    }
+
+    @Override
+    public void writeEntityToNBT(NBTTagCompound tagCompound)
+    {
+        tagCompound.setString("Name", this.art.name());
+        super.writeEntityToNBT(tagCompound);
+    }
+
+    @Override
+    public void readEntityFromNBT(NBTTagCompound tagCompund)
+    {
+        String s = tagCompund.getString("Name");
+
+        for (Art art : Art.values())
         {
-            if (arts[i] == art)
+            if (art.name().equals(s))
             {
-                buffer.writeInt(i);
-                return;
+                this.art = art;
             }
         }
+
+        if (this.art == null)
+        {
+            this.art = Art.A1x1_0;
+        }
+
+        super.readEntityFromNBT(tagCompund);
+    }
+
+    @Override
+    public void writeSpawnData(ByteBuf buffer)
+    {
+        buffer.writeInt(getHorizontalFacing().getIndex());
+        buffer.writeInt(art.index());
     }
 
     @Override
     public void readSpawnData(ByteBuf additionalData)
     {
-        int index = additionalData.readInt();
+        int facing = additionalData.readInt();
         int id = additionalData.readInt();
-        this.art = EnumArt.values()[id];
-
-        EnumFacing facing = EnumFacing.getFront(index);
-        this.updateFacingWithBoundingBox(facing);
+        setArt(Art.values()[id], facing);
     }
 
     public void setArtFromStack(ItemStack stack)
     {
-        if (stack.getDisplayName() != null)
+        int id = stack.getItemDamage();
+        Art[] arts = Art.values();
+        if (id < arts.length)
         {
-            String name = stack.getDisplayName();
-            int index = name.indexOf(":") + 1;
-            if (index > 0)
-            {
-                String id = name.substring(index);
-                try
-                {
-                    int i = Integer.parseInt(id);
-                    if (i <= 25)
-                    {
-                        art = EnumArt.values()[i];
-                    }
-                }
-                catch (NumberFormatException e)
-                {}
-            }
+            setArt(arts[id], this.getHorizontalFacing().getIndex());
         }
+    }
+
+    private void setArt(Art art, int facing)
+    {
+        this.art = art;
+        if (art.sizeY == 32 || art.sizeY == 64)
+        {
+            this.setPosition(this.posX, this.posY - 1, this.posZ);
+        }
+        this.updateFacingWithBoundingBox(EnumFacing.getFront(facing));
     }
 }
