@@ -1,6 +1,8 @@
 package me.ardacraft.paintings.entity;
 
 import io.netty.buffer.ByteBuf;
+import me.ardacraft.paintings.item.PaintingCreator;
+import me.ardacraft.paintings.item.PaintingItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * @author dags <dags@dags.me>
  */
-public class PaintingBase extends EntityHanging implements IEntityAdditionalSpawnData
+public abstract class PaintingBase extends EntityHanging implements IEntityAdditionalSpawnData
 {
     public Art art = Art.A1x1_0;
 
@@ -64,6 +66,23 @@ public class PaintingBase extends EntityHanging implements IEntityAdditionalSpaw
     @SideOnly(Side.CLIENT)
     public void setPositionAndRotation2(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean p_180426_10_)
     {}
+
+    @Override
+    public boolean interactAt(EntityPlayer player, Vec3 vec3)
+    {
+        if (player.getHeldItem() != null && player.getHeldItem().getItem() instanceof PaintingItem)
+        {
+            EnumFacing facing = player.getHorizontalFacing().getOpposite();
+            PaintingItem.placeItem(player.getHeldItem(), player, worldObj, getHangingPosition(), facing, paintingCreator());
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onValidSurface()
+    {
+        return true;
+    }
 
     @Override
     public int getWidthPixels()
@@ -139,4 +158,6 @@ public class PaintingBase extends EntityHanging implements IEntityAdditionalSpaw
         }
         this.updateFacingWithBoundingBox(EnumFacing.getFront(facing));
     }
+
+    abstract PaintingCreator paintingCreator();
 }

@@ -61,6 +61,11 @@ public class PaintingItem extends ItemHangingEntity
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+        return placeItem(stack, playerIn, worldIn, pos, side, paintingCreator);
+    }
+
+    public static boolean placeItem(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumFacing side, PaintingCreator paintingCreator)
+    {
         if (side == EnumFacing.DOWN)
         {
             return false;
@@ -77,18 +82,14 @@ public class PaintingItem extends ItemHangingEntity
             {
                 return false;
             }
-            else
+            PaintingBase painting = paintingCreator.createEntity(worldIn, blockpos, side);
+            painting.setArtFromStack(stack);
+
+            if (painting.onValidSurface() && !worldIn.isRemote)
             {
-                PaintingBase painting = paintingCreator.createEntity(worldIn, blockpos, side);
-                painting.setArtFromStack(stack);
-
-                if (painting.onValidSurface() && !worldIn.isRemote)
-                {
-                    worldIn.spawnEntityInWorld(painting);
-                }
-
-                return true;
+                worldIn.spawnEntityInWorld(painting);
             }
+            return true;
         }
     }
 }
