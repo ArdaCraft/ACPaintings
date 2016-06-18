@@ -1,7 +1,6 @@
 package me.ardacraft.paintings.entity;
 
 import me.ardacraft.paintings.item.PaintingCreator;
-import me.ardacraft.paintings.item.PaintingItem;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;

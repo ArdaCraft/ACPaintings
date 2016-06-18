@@ -9,9 +9,13 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author dags <dags@dags.me>
@@ -20,6 +24,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class ACPainting
 {
     public static final String MOD_ID = "acpaintings";
+    static final Map<String, PaintingItem> items = new HashMap<>();
 
     private final PaintingItem paint0 = new PaintingItem(Painting0.class, Painting0::new);
     private final PaintingItem paint1 = new PaintingItem(Painting1.class, Painting1::new);
@@ -66,13 +71,20 @@ public class ACPainting
         model(event.getSide(), paint4);
     }
 
+    @Mod.EventHandler
+    public void serverStart(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new PaintingCommand());
+    }
+
     private static void register(Object plugin, Side side, PaintingItem item, int id)
     {
+        items.put(item.getIdName(), item);
         GameRegistry.registerItem(item);
-        EntityRegistry.registerModEntity(item.getEntityClass(), item.getSimpleName(), id, plugin, 24, 1, false);
+        EntityRegistry.registerModEntity(item.getEntityClass(), item.getIdName(), id, plugin, 24, 1, false);
         if (side == Side.CLIENT)
         {
-            RenderingRegistry.registerEntityRenderingHandler(item.getEntityClass(), new PaintingRenderFactory(item.getSimpleName()));
+            RenderingRegistry.registerEntityRenderingHandler(item.getEntityClass(), new PaintingRenderFactory(item.getIdName()));
         }
     }
 
@@ -80,7 +92,7 @@ public class ACPainting
     {
         if (side == Side.CLIENT)
         {
-            ModelResourceLocation location = new ModelResourceLocation(MOD_ID + ":" + item.getSimpleName(), "inventory");
+            ModelResourceLocation location = new ModelResourceLocation(MOD_ID + ":" + item.getIdName(), "inventory");
             for (int meta = 0; meta < Art.values().length; meta++)
             {
                 Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, location);

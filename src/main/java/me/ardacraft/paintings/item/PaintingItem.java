@@ -25,8 +25,8 @@ public class PaintingItem extends ItemHangingEntity
         super(entityClass);
         this.entityClass = entityClass;
         this.paintingCreator = paintingCreator;
-        this.setUnlocalizedName(getSimpleName());
-        this.setRegistryName(getSimpleName());
+        this.setUnlocalizedName(getIdName());
+        this.setRegistryName(getIdName());
         this.setCreativeTab(tab);
     }
 
@@ -35,7 +35,7 @@ public class PaintingItem extends ItemHangingEntity
         return entityClass;
     }
 
-    public String getSimpleName()
+    public String getIdName()
     {
         return entityClass.getSimpleName().toLowerCase();
     }
